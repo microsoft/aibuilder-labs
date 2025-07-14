@@ -394,3 +394,136 @@ With the prompt configured, tested, and saved - we can now integrate it into a P
 
 ### Create a Power Automate flow to process expense reports
 
+1. Navigate to [Power Automate](https://make.powerautomate.com/).
+
+1. Ensure you are in the same environment as the Power Platform solution you created earlier.
+
+1. On the left sidebar, select **+ Create** and then select **Automated cloud flow**.
+
+    ![Create automated cloud flow option](./assets/create-automated-cloud-flow.png)
+
+1. On the **Build an automated cloud flow** pane, enter the following details:
+    - **Flow name**: `Analyze Incoming Expense Reports`
+    - **Trigger**: `When a new email arrives (V3)` by Office 365 Outlook
+
+    Then select **Create**.
+
+1. Configure the trigger by setting the following parameters:
+    - **Include Attachments**: `Yes`
+    - **Only with Attachments**: `Yes`
+    - **Subject Filter**: `New Expense Report`
+    - **Importance**: `Any`
+    - **Folder**: `Inbox`
+
+    ![When a new email arrives trigger](./assets/when-a-new-email-arrives-trigger.png)
+
+    This trigger will kick off the flow when a new email arrives in the inbox with the subject "New Expense Report" and contains attachments.
+
+1. Add a new action by clicking the **New action** icon under the trigger.
+
+    ![New action icon](./assets/new-action-icon.png)
+
+1. In the **Add an action** pane, search for `Get user profile (V2)` and select it.
+
+    ![Get user profile action](./assets/get-user-profile-action.png)
+
+1. Create a connection if prompted.
+
+1. Configure the action by setting the **User (UPN)** field to the `From` dynamic field from the **When a new email arrives (V3)** trigger. 
+
+    To set a dynamic content field, select the empty field and then select the **Dynamic Content** icon (lightning bolt) on the right-hand side.
+
+    ![Dynamic content icon](./assets/dynamic-content-icon.png)
+
+    Then select the `From` field from under the **When a new email arrives (V3)** trigger.
+
+    ![Get user profile dynamic content](./assets/get-user-profile-dynamic-content.png)
+
+    This action will retrieve the user profile of the person who sent the email, which we will use later to populate the **Employee Name** and **Employee Alias** fields in the **Expense Report** table.
+
+1. Next, add the **Add a new row** Dataverse action. Create a connection if prompted. Then configure the following parameters:
+
+    - **Table name**: `Expense Reports`
+    - **Expense Report ID**: `@{guid()}`
+
+    `@{guid()}` will turn into this:
+
+    ![Guid expression](./assets/guid-expression.png)
+
+    This is an expression that generates a unique identifier for each expense report.
+
+    - **Approval Status**: `Pending`
+    - **Employee Alias**: `User Principal Name` dynamic content field from the **Get user profile (V2)** action
+    - **Employee Name**: `Display Name` dynamic content field from the **Get user profile (V2)** action
+    - **Submission Date**: `@{utcNow()}`
+
+    The rest of your action should look like this:
+
+    ![Add a new row action](./assets/add-a-new-row-action.png)
+
+    This action will create a new expense report in the **Expense Reports** table with the details from the email and the user profile of the person who sent the email. The approval status is set to `Pending` because not all details (the expenses) have been processed yet. The submission date will be set to the current date and time.
+
+1. Now we will initialize two variables. One to store the expense purpose and another to store the total expense amount.
+
+    - Add an **Initialize variable** action and configure it as follows:
+        - **Name**: `Purpose`
+        - **Type**: `String`
+        - **Value**: `Purpose`
+
+    - Add another **Initialize variable** action and configure it as follows:
+        - **Name**: `Total Expense Amount`
+        - **Type**: `Float`
+        - **Value**: `0`
+
+1. With these steps out the way, we can start processing the email attachments. Remember that a single email may contain multiple receipts, so we need to loop through each attachment and process them individually.
+
+    Start by adding an **Apply to each** action and configure it as follows:
+    - Select the **Attachments** dynamic content field from the **When a new email arrives (V3)** trigger.
+
+    ![Apply to each action](./assets/apply-to-each-action.png)
+
+    This ensures that the flow will process each attachment in the email one by one.
+
+1. Now add a new action _inside_ the **Apply to each** action.
+
+    ![Add an action icon](./assets/add-an-action-inside.png)
+
+1. Search for the `Run a prompt` AI Builder action and select it. This is the action that will execute the AI prompt we created earlier.
+
+    Configure the action as follows:
+    - **Prompt**: `Expense Processor`
+    - **Email**: `Body` dynamic content field from the **When a new email arrives (V3)** trigger
+    - **Receipts**: `Attachments Content` dynamic content field from the **When a new email arrives (V3)** trigger (This field may change to `contentBytes`. It's the same thing.)
+
+    ![Run a prompt action](./assets/run-a-prompt-action.png)
+
+    This action will execute the **Expense Processor** AI prompt with the email body and the attachment content as input variables. The output will be a JSON object containing the expense details.
+
+1. Still inside the **Apply to each** action, add the `Add a new row` Dataverse action and configure it as follows:
+    - **Table name**: `Expenses`
+    - **Expense Number**: `@{guid()}`
+    - **Amount**: `Amount` dynamic content field from the **Run a prompt** action
+    - **Category**: `Category` dynamic content field from the **Run a prompt** action
+    - **Expense Date**: `Expense Date` dynamic content field from the **Run a prompt** action
+    - **Notes**: `Notes` dynamic content field from the **Run a prompt** action
+    - **Vendor**: `Vendor` dynamic content field from the **Run a prompt**
+    - **Expense Report (Expense Reports)**: 
+        - Click into the field and manually type `/`
+        - Then paste in the **Expense Report** table set name you copied earlier
+        - Then type `(`
+        - Then select the `Expense Report` dynamic content field from the earlier **Add a new row** action
+        - Then type `)`
+
+        It should look something like this:
+
+        ![Expense Report (Expense Reports) field](./assets/expense-report-expense-reports-field.png)
+
+        This field establishes the relationship between the expense and the expense report it belongs to by.
+
+    This action takes in the output from the AI prompt and creates a new expense record in the **Expenses** table with the details extracted from the email and receipt.
+
+1. Immediately after that, add a **Upload a file or image** Dataverse action and configure it as follows:
+    - **Content name**: `name` dynamic content field from the **When a new email arrives (V3)** trigger
+    - **Table name**: `Expenses`
+    - **Row ID**: `Expense` dynamic content field from the second **Add a new row** action
+    - **Column name**: `Receipt`
