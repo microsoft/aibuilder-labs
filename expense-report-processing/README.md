@@ -1,6 +1,6 @@
 # Expense Report Processing with AI Prompts
 
-{ description }
+In this lab, you will learn how to automate the processing of expense reports using AI Builder prompts and Power Automate. The lab will guide you through creating a Power Platform solution, configuring Dataverse tables, designing an AI prompt, and building a Power Automate flow to process incoming emails with expense receipts.
 
 ## ⚙️ Prerequisites
 
@@ -143,10 +143,6 @@
       - **Data type**: `Single line of text`
       - **Format**: `Text`
 
-    - **Display name**: `Receipt`
-      - **Data type**: `Single line of text` (We will change this to an **Image** later)
-      - **Format**: `Text`
-
     - **Display name**: `Notes`
       - **Data type**: `Multiple lines of text`
       - **Format**: `Text`
@@ -214,6 +210,19 @@
     ![Expense Category sample data](./assets/expense-category-sample-data.png)
 
 1. Once all records are added, click the back arrow on the top left-hand corner to return to the **Tables > Expense Category** page. Then go back to the **Tables** page by clicking on the **Tables** tab.
+
+1. Now we are going to be adding an extra column to the **Expense** table to store the receipt images. At the time of writing this lab, you are unable to add an image column to a table via the previous UI. So we will do it traditionally.
+
+    Click on the **Expense** table to open it. Then in the **Schema** section, select **Columns**.
+
+    ![Expense table columns option](./assets/expense-table-columns-option.png)
+
+    On the top navigation bar, select **+ New column** and then configure the following details:
+    - **Display name**: `Receipt`
+    - **Data type**: `File` > `Image`
+    - **Primary Image**: ✅
+
+    Then select **Save**. Once saved, navigate back to the **Tables** page by clicking on the **Tables** tab.
 
 1. Finally, we need to copy the **Expense Report** table set name so that we can reference the table later in the lab. Each set name is unique as it consists of the solution publishers's prefix and the table name. To get yours, open the **Expense Report** table and then on the right-hand side, under the **Table properties** section, select **Tools** > **Copy set name**.
 
@@ -523,7 +532,107 @@ With the prompt configured, tested, and saved - we can now integrate it into a P
     This action takes in the output from the AI prompt and creates a new expense record in the **Expenses** table with the details extracted from the email and receipt.
 
 1. Immediately after that, add a **Upload a file or image** Dataverse action and configure it as follows:
-    - **Content name**: `name` dynamic content field from the **When a new email arrives (V3)** trigger
+    - **Content name**: `Expense Number` dynamic content field from the second **Add a new row** action
     - **Table name**: `Expenses`
     - **Row ID**: `Expense` dynamic content field from the second **Add a new row** action
     - **Column name**: `Receipt`
+    - **Content**: `Attachments Content` dynamic content field from the **When a new email arrives (V3)** trigger
+
+    ![Upload a file or image action](./assets/upload-a-file-or-image-action.png)
+
+    This action uploads the receipt image to the **Receipt** column in the **Expenses** table. The `Expense Number` is used as the file name, and the `Attachments Content` is the content of the receipt image.
+
+1. Next, we need to set the `Purpose` variable and increment the **Total Expense Amount** variable with data from the AI prompt output.
+
+    - Within the **Apply to each** loop, add a **Set variable** action and configure it as follows:
+        - **Name**: `Purpose`
+        - **Value**: `Purpose` dynamic content field from the **Run a prompt** action
+
+    ![Set variable action for Purpose](./assets/set-variable-action-purpose.png)
+
+    - Add a **Increment variable** action and configure it as follows:
+        - **Name**: `Total Expense Amount`
+        - **Value**: `Amount` dynamic content field from the **Run a prompt** action
+
+    ![Increment variable action for Total Expense Amount](./assets/increment-variable-action-total-expense-amount.png)
+
+    These actions will set the `Purpose` variable to the purpose of the expense report and increment the `Total Expense Amount` variable with the total amount of each expense.
+
+1. The last step of the flow is to update the **Expense Report** record with the updated details. Add a new action _outside_ the **Apply to each** loop and search for the `Update a row` Dataverse action. Configure it as follows:
+    - **Table name**: `Expense Reports`
+    - **Row ID**: `Expense Report` dynamic content field from the first **Add a new row** action
+    - **Approval Status**: `Submitted`
+    - **Purpose**: `Purpose` variable
+    - **Total Amount**: `Total Expense Amount` variable
+
+    This action will update the **Expense Report** record with the purpose of the expense report, the total amount of all expenses, and it will update the approval status to `Submitted`.
+
+1. Finally, save the flow by selecting the **Save** button on the top right-hand corner of the screen. Once saved, select the **Test** button to test the flow.
+
+    In the **Test flow** pane, select **Manually** and then select **Test**.
+
+    ![![Test flow button](./assets/test-flow-button.png)](./assets/test-flow.png)
+
+1. To test the flow, open a new tab and navigate to [Outlook](https://outlook.office.com/). 
+    - Create a new email with the subject `New Expense Report` and add the following body:
+
+        ```plaintext
+        Hi,
+
+        I hope you're doing well.
+
+        Please find attached my expense receipts for my trip to Johannesburg, where I participated as a speaker at the Microsoft AI Tour.
+
+        Let me know if you need any additional details.
+
+        Best,
+        {Your name here}
+        ```
+
+    - In the **To** line, enter the email address associated with your Power Platform environment.
+    - Attach all of the sample receipts from the [sample-receipts](./sample-receipts/) folder. Or you're welcome to use your own receipts if you have any.
+
+    **Send** the email.
+
+1. Once the email has been sent, return to Power Automate to see the flow run.
+
+    You should see the flow run successfully:
+
+    ![Flow run successful](./assets/flow-run-successful.png)
+
+    ![Flow run successful](./assets/flow-run-successful2.png)
+
+1. To verify that the expense report and expenses were created successfully, navigate to [Power Apps](https://make.powerapps.com/) and on the left sidebar, select **Tables**.
+
+    Select the **Custom** tab to see the tables you created earlier. Then select the **Expense Report** table. Scroll down to the **Expense Report columns and data** section and then click on the **Edit** button.
+
+    You should then see the newly created expense report with the Expense Report ID, Employee Name, and Employee Alias:
+
+    ![Expense Report data](./assets/expense-report-data1.png)
+
+    As well as the Purpose, Total Amount, Submission Date, Approval Status, and any Notes if provided:
+
+    ![Expense Report data](./assets/expense-report-data2.png)
+
+    Now if we go back to the **Tables** page and select the **Expenses** table, we can see all the expenses that were created from the email attachments. Along with the correct Category, Vendor, Amount, and Expense Date:
+
+    ![Expenses data](./assets/expenses-data1.png)
+
+    And the correct Receipt image uploaded, the relevant Notes, and the relationship to the same Expense Report:
+
+    ![Expenses data](./assets/expenses-data2.png)
+
+And that's it! You've successfully created an AI-powered expense report processing solution using Power Platform. As a reminder, we;
+
+- Created a Power Platform solution to house our Dataverse tables, AI prompt, and Power Automate flow.
+- Created Dataverse tables for Expense Reports, Expenses, and Expense Categories.
+- Designed an AI prompt that processes incoming emails and associated expense receipts.
+- Created a Power Automate flow that automates the processing of expense reports via email, leveraging the AI prompt to extract and categorize expenses.
+
+This is only the beginning of what you can do with AI Builder and Power Platform. You can extend this solution further by adding more features, such as:
+- Integrating with Microsoft Teams to notify users when their expense report has been processed
+- Adding a Power Apps canvas app to allow users to view and manage their expense reports and expenses
+- Using Power BI to visualize expense reports and expenses for better insights
+- Implementing additional AI Builder models to enhance the solution
+- Integrating Approvals to automate the approval process for expense reports
+- Adding a Copilot Studio agent to allow users to query and manage their expense reports using natural language
