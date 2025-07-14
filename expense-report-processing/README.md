@@ -17,10 +17,12 @@
 1. Navigate to [Power Apps](https://make.powerapps.com/) and log in with your credentials.
 
 1. On the left sidebar, select **Solutions**.
-  ![Solutions option](./assets/select-solutions.png)
+
+    ![Solutions option](./assets/select-solutions.png)
 
 1. Select **+ New solution**.
-  ![New solution button](./assets/new-solution.png)
+
+    ![New solution button](./assets/new-solution.png)
 
 1. On the **New solution** pane, enter the following details:
     - **Display name**: `AI Expense Report Processing`
@@ -33,7 +35,7 @@
         > Setting a preferred solution ensures that all your custom components go into a dedicated unmanaged solution instead of the generic system solutions, giving you clear separation, consistent publisher settings, and full control.
         >
         > This makes it easy to export your tailored solution for deployment to other Dataverse environments and keeps collaboration with others clean and predictable.
-
+        
     ![New solution details](./assets/new-solution-details.png)
 
 1. Then click **Create**.
@@ -53,23 +55,29 @@
 1. On the left sidebar, select **Tables**.
 
 1. Then select **Start with a blank table**.
-   ![Start with a blank table](./assets/start-with-blank-table.png)
+
+    ![Start with a blank table](./assets/start-with-blank-table.png)
 
 1. The first table that we'll create is the **Expense Report** table. On the **Table1** table card, click on **View options** (three dots) and then select **Properties**.
-   ![Table properties option](./assets/table-properties-option.png)
+
+    ![Table properties option](./assets/table-properties-option.png)
 
 1. Change the **Display name** of the table to `Expense Report`. The **Plural name** will automatically update to `Expense Reports`. Then click **Save**.
-   ![Expense Report table properties](./assets/expense-report-table-properties.png)
+
+    ![Expense Report table properties](./assets/expense-report-table-properties.png)
 
 1. Now we'll add the columns. On the **Expense Report** table card, click on **View options** (three dots) and then select **View data**. (If you see the **Hide data** option instead, it means you already have the data view open.)
 
 1. Click on the **New column** column and then select **Edit column**.
+
     ![Edit column option](./assets/edit-column-option.png)
 
 1. Change the **Display name** to `Expense Report ID`. Leave the **Data type** and **Format** as **Single line of text** and **Text** respectively. Expand the **Advanced options** section and change the **Schema name** to `ExpenseReportID2` so it doesn't conflict with the default `ExpenseReportID` column. Then click **Update**.
+
     ![Expense Report ID column properties](./assets/expense-report-id-column-properties.png)
 
 1. Now to add a new column, select the **+ New column** button at the top of the data view.
+
     ![New column button](./assets/new-column-button.png)
 
 1. In the **New column** pane, enter the following details:
@@ -78,6 +86,7 @@
     - **Format**: `Text`
 
     Then click **Save** to create the new column.
+    
     ![Employee Name column properties](./assets/employee-name-column-properties.png)
 
 1. Repeat the above steps to add the following columns to the **Expense Report** table:
@@ -105,10 +114,12 @@
       - **Format**: `Text`
       
 1. Once all columns are added, your **Expense Report** table should look like this:
+
     ![Expense Report table columns](./assets/expense-report-table-columns.png)
 
 1. Now we'll create the **Expense** table. On the top navigation bar, select **+ New table** > **Add columns and data**.
-   ![Add columns and data option](./assets/add-columns-and-data-option.png)
+
+    ![Add columns and data option](./assets/add-columns-and-data-option.png)
 
 1. On the **Table2** table card, click on **View options** (three dots) and then select **Properties**.
 
@@ -141,6 +152,7 @@
       - **Format**: `Text`
 
 1. Once all columns are added, your **Expense** table should look like this:
+
     ![Expense table columns](./assets/expense-table-columns.png)
 
 1. Now we'll create the **Expense Category** table. On the top navigation bar, select **+ New table** > **Add columns and data**.
@@ -155,10 +167,12 @@
       - **Format**: `Text`
 
 1. Once the column is added, your **Expense Category** table should look like this:
+
     ![Expense Category table columns](./assets/expense-category-table-columns.png)
 
 1. Now that we have all 3 tables created, let's establish a table relationship. On the top navigation bar, select **Create relationships**.
-   ![Create relationships option](./assets/create-relationships-option.png)
+
+    ![Create relationships option](./assets/create-relationships-option.png)
 
 1. In the **Create relationship** pane:
     - Select `One-to-many` as the **Relationship type**.
@@ -166,21 +180,25 @@
     - Select `Expense` as the **Many** table.
 
     Then select **Done**.
+    
     ![Create relationship pane](./assets/create-relationship-pane.png)
 
     This will create a relationship between the **Expense Report** and **Expense** tables, allowing each expense report to have multiple expenses associated with it. In turn, each expense can only belong to one expense report.
 
 1. With that complete, click **Save and exit** on the top right-hand corner of the screen. A confirmation dialog may appear, click **Save and exit** to confirm.
+
     ![Save and exit confirmation](./assets/save-and-exit-confirmation.png)
 
     This will save all the changes made to the tables and relationships.
 
 1. Once saved, you will be redirected back to the **Tables** page. Click on the **Custom** tab to see the tables you've just created.
+
     ![Custom tables tab](./assets/custom-tables-tab.png)
 
 1. Before we're ready to move to AI Builder, we need to have some sample data in the **Expense Category** table. Click on the **Expense Category** table to open it.
 
 1. Scroll down to the **Expense Category columns and data** section and then click on the **Edit** button.
+
     ![Edit button](./assets/edit-button.png)
 
 1. Insert the following records into the **Expense Category** table by selecting **+ New row** on the top navigation bar:
@@ -192,12 +210,13 @@
     | Hotel | Covers lodging expenses for business travel, including nightly stays at hotels, motels, or corporate housing. |
     | Meals | Covers meal expenses incurred during business travel or client meetings. |
     | Parking | Covers parking fees incurred during business-related activities, including airport parking, hotel parking, and client site visits. |
-
+    
     ![Expense Category sample data](./assets/expense-category-sample-data.png)
 
 1. Once all records are added, click the back arrow on the top left-hand corner to return to the **Tables > Expense Category** page. Then go back to the **Tables** page by clicking on the **Tables** tab.
 
 1. Finally, we need to copy the **Expense Report** table set name so that we can reference the table later in the lab. Each set name is unique as it consists of the solution publishers's prefix and the table name. To get yours, open the **Expense Report** table and then on the right-hand side, under the **Table properties** section, select **Tools** > **Copy set name**.
+
     ![Copy set name option](./assets/copy-set-name-option.png)
 
     This will copy the set name to your clipboard. You can paste it somewhere safe for later use.
@@ -207,12 +226,14 @@ With the tables created and configured, we can now move on to designing an AI pr
 ### Design an AI prompt with AI Builder
 
 1. On the left sidebar in the Power Apps portal, select **AI hub**.
-   ![AI hub option](./assets/select-ai-hub.png)
+
+    ![AI hub option](./assets/select-ai-hub.png)
 
 1. Select **Prompts**.
 
 1. Then select **Build your own prompt**.
-   ![Build your own prompt option](./assets/build-your-own-prompt.png)
+
+    ![Build your own prompt option](./assets/build-your-own-prompt.png)
 
     This will then open up the Prompt Builder:
 
@@ -257,13 +278,3 @@ With the tables created and configured, we can now move on to designing an AI pr
     4. Extract the expense date: Identify the date of the expense from the receipt, ensuring it's formatted correctly (YYYY-MM-DD).
     5. Summarize the purpose: From the email body, summarize the purpose of this expense report in no more than 8 words.
     ```
-
-    
-
-
-
-
-
-
-
-
