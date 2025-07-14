@@ -278,3 +278,71 @@ With the tables created and configured, we can now move on to designing an AI pr
     4. Extract the expense date: Identify the date of the expense from the receipt, ensuring it's formatted correctly (YYYY-MM-DD).
     5. Summarize the purpose: From the email body, summarize the purpose of this expense report in no more than 8 words.
     ```
+
+    The full prompt instruction should now look like this:
+
+    ![Full prompt instruction](./assets/full-prompt-instruction.png)
+
+    Notice now 2 - 5 have clear, actionable instructions provided after the colon, guiding exactly what needs to be done while 1 is incomplete. This is because we will be using the **Expense Category** Dataverse table to provide the AI model with a list of categories to choose from. This is known as a grounded prompt.
+
+    A grounded prompt is a specialized prompt instruction that guides an AI model by providing it with external, business-specific information, rather than relying solely on the model's pre-existing knowledge from training data.
+    
+    In our example, the first task ("Categorize the expense:") lacks explicit instructions because it will leverage an external source, specifically the **Expense Category** Dataverse table. By using this table, we're augmenting the model's knowledge with structured data, enabling it to select the most accurate category from predefined options.
+    
+    This process, known as Retrieval Augmented Generation (RAG), significantly improves the model's accuracy and reliability by grounding its responses in real-world, business-specific context.
+
+1. So in the prompt instruction, right after "1. Categorize the expense:",
+    - Type `Use the categories listed in `
+    - Then select **Add content** > **Dataverse** > **Expense Category** > **Category Name** and then click **Add**
+
+    This will add the **Expense Category** table's **Category Name** column to the prompt instruction allowing the AI model to only select categories from the list of categories defined in the **Expense Category** table.
+
+    - Continue to type ` and use the `
+    - Then select **Add content** > **Dataverse** > **Expense Category** > **Category Description** and then click **Add**
+    - Then continue to type ` to help you determine the correct category based on the receipt information.`
+
+    The addition of the **Category Description** column provides additional context to the AI model, helping it make more informed decisions when categorizing expenses.
+
+    The prompt instruction should now look like this:
+
+    ![Prompt instruction with Dataverse data](./assets/prompt-instruction-with-dataverse-data.png)
+
+1. With the task, context and expectations defined, we can now move on to define the output. Here, we will specify to the model **_how_** we want to format the output of the prompt. Add the following to the prompt instruction:
+
+    ```plaintext
+    Return the extracted data in the following format:
+
+    - Category: The correct expense category based on the receipt details.
+    - Amount: The total amount in USD formatted to 2 decimal places. If the receipt is in a foreign currency, convert it to USD.
+    - Vendor: The cleaned name of the vendor, removing unnecessary details.
+    - Expense Date: The date of the expense in YYYY-MM-DD format.
+    - Purpose: A summary of the expense report's purpose. No more than 8 words.
+    - Notes: Any relevant notes about the receipt, such as the original currency and amount, missing or unclear dates, non-economy class ticket, or any potential issues with the receipt.
+    ```
+
+    The completed prompt instruction should now look like this:
+
+    ![Completed prompt instruction](./assets/completed-prompt-instruction.png)
+
+1. Now with the prompt complete, we can test it to make sure that it works as expected. First we need to provide sample data for the input variables.
+
+    To provide sample data for the `email` input variable, select the variable and then in the **Sample data** pane, write the following sample email:
+
+    ```plaintext
+    Hi,
+
+    I hope you're doing well.
+
+    Please find attached my expense receipts for my trip to Johannesburg, where I participated as a speaker at the Microsoft AI Tour.
+
+    Let me know if you need any additional details.
+
+    Best,
+    {Your name here}
+    ```
+
+    Then select **Close**.
+
+    ![Sample email input variable](./assets/sample-email-input-variable.png)
+
+    Then for the `receipts` input variable, select the variable and then in the **Sample data** pane, upload any of the sample receipts images from the [sample-images](./sample-receipts/) folder. Or you're welcome to use your own receipts if you have any.
