@@ -346,3 +346,51 @@ With the tables created and configured, we can now move on to designing an AI pr
     ![Sample email input variable](./assets/sample-email-input-variable.png)
 
     Then for the `receipts` input variable, select the variable and then in the **Sample data** pane, upload any of the sample receipts images from the [sample-images](./sample-receipts/) folder. Or you're welcome to use your own receipts if you have any.
+
+    Then select **Close**.
+
+    ![Sample receipts input variable](./assets/sample-receipts-input-variable.png)
+
+1. With the sample data provided, let's test the prompt. Select the **Test** button on the top right-hand corner of the **Instructions** section.
+
+    ![Test button](./assets/test-button.png)
+
+1. The prompt will take a couple of seconds to process the email and image input variables but once complete you should see an output similar to this: 
+
+    ![Prompt text output](./assets/prompt-text-output.png)
+
+1. While this should be sufficient for our needs, we can improve the output by formatting it as a **JSON object** instead of plain text. A JSON object output also makes it easier to parse individual fields to other parts of the Power Platform and external systems. 
+
+    To do this, select the **Text** button next to **Output** in the **Model Response** section.
+
+    ![Text output button](./assets/text-output-button.png)
+
+    Then select **{} JSON** from the dropdown menu. Next, select **Customize JSON** and paste in the following JSON example:
+
+    ```json
+    {
+        "Category": "Meals",
+        "Amount": 7.5,
+        "Vendor": "The Balalaika",
+        "ExpenseDate": "2025-01-23",
+        "Notes": "Original amount in ZAR: R143.00",
+        "Purpose": "Speaker at Microsoft AI Tour"
+    }
+    ```
+
+    Then select **Apply**.
+
+    This will ensure that whenever the prompt is executed, the output will be formatted as a JSON object with the specified fields making it far more consistent.
+
+1. Now select **Test** again to test the prompt with the new JSON output format. Once complete, you should see an output similar to this:
+
+    ![Prompt JSON output](./assets/prompt-json-output.png)
+
+1. Now that the prompt is working as expected, rename the prompt to `Expense Processor` and then select **Save**.
+
+    ![Rename and save prompt](./assets/rename-and-save-prompt.png)
+
+With the prompt configured, tested, and saved - we can now integrate it into a Power Automate flow that will automate the processing of expense reports via email.
+
+### Create a Power Automate flow to process expense reports
+
