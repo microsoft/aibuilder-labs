@@ -140,6 +140,56 @@ With both models deployed, let's go back to the Power Platform to connect them t
 
 1. Select **Prompts**.
 
-1. On the Prompts page, under the **Popular Templates** section, select the **Summarize text** template.
+1. On the Prompts page, under the **Popular Templates** section, select the **Summarize text** template to open it.
 
     ![Summarize Text Template](./assets/summarize-text-template.png)
+
+1. If you're worked with prompts before, you will know that each prompt has a model which it uses to generate responses. The default model (at the time of writing this lab) is **GPT-4.1 mini**.
+
+    **Test** the prompt (template prompts already have sample data) to see how it responds with the default model.
+
+    The response may be similar to the following:
+    ![Default Model Response](./assets/default-model-response.png)
+
+    But if you were to select the **Model** dropdown, you will see that there are other managed models to choose from.
+
+    ![Model Dropdown](./assets/model-dropdown.png)
+
+    Select the **GPT-4o** model and test it to see how it responds. Your may see a response similar to the following:
+
+    ![GPT-4o Model Response](./assets/gpt-4o-model-response.png)
+
+    You can see a noticeable difference in the response detail compared to the default model. This is not just a difference in text, but also in structure, format, and overall quality. This is why you may want to bring a model of your own because you may prefer the way it generates responses or you may have a specific model that is better suited for your use case.
+
+1. So to add the models that we deployed in Azure AI Foundry, select the **Model** dropdown and then select the **+** sign next to **Azure AI Foundry Models**.
+
+    ![Add Azure AI Foundry Model](./assets/add-azure-ai-foundry-model.png)
+
+1. On the **Connect to a model from Azure AI Foundry** pane, enter the following details:
+
+    - **Model deployment name**: `phi-4-ai-prompt` (the deployment name of the Phi-4 model that you copied earlier)
+    - **Base model name**: `Phi-4` (this is the name of the model)
+    - **Azure model endpoint URL**: `https://<your-endpoint>` (the target URI of the Phi-4 model deployment that you copied earlier)
+    - **API Key**: `<your key here>` (the key of the Phi-4 model deployment that you copied earlier)
+
+    ![Connect Phi-4 Model](./assets/connect-phi-4-model.png)
+
+    Then select **Connect**.
+
+1. Once the model is connected, you'll see a confirmation screen. Select **Close** to return to the prompt.
+
+    ![Model Connected Confirmation](./assets/model-connected-confirmation.png)
+
+    You should also see the **phi-4-ai-prompt** model in the **Model** dropdown.
+
+    ![Phi-4 Model in Dropdown](./assets/phi-4-model-in-dropdown.png)
+
+1. **Test** the prompt again with the Phi-4 model selected. You should now see a different response compared to the first two tests. 
+
+1. Repeat the above steps to connect the **Mistral-Nemo** model. Once complete, you should have both models connected to the prompt:
+
+    ![Mistral-Nemo Model in Dropdown](./assets/mistral-nemo-model-in-dropdown.png)
+
+1. Save the prompt and use it across the Power Platform, including in Copilot Studio agents.
+
+And that's it! You have successfully brought your own Azure AI Foundry models to AI Builder prompts. You can now use these models to generate responses in your applications, leveraging the power of Azure AI Foundry's advanced models.
