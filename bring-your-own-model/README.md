@@ -1,6 +1,8 @@
 # Bring Your Own Azure AI Foundry Model to AI Prompts
 
-{description}
+In this lab, you will learn how to deploy and connect your own Azure AI Foundry models to AI Builder prompts in the Power Platform. This allows you to leverage advanced AI models for generating responses in your applications, enhancing the capabilities of AI Builder.
+
+This lab will guide you through the process from scratch, including creating a dedicated Power Platform solution, deploying models in Azure AI Foundry, and connecting those models to AI Builder prompts.
 
 ## ⚙️ Prerequisites
 
