@@ -1,3 +1,14 @@
+---
+layout: default
+title: Expense Processing Lab
+nav_order: 2
+industry: ["Finance", "Healthcare", "Professional Services"]
+difficulty: "Beginner"
+duration: "45 minutes"
+features: ["Document Processing", "Workflow Automation", "Data Extraction", "Expense Processing", "Power Automate", "Dataverse"]
+ai_builder_components: ["Document Processing", "Prompts"]
+prerequisites: ["Power Automate", "Dataverse"]
+---
 # Expense Report Processing with AI Prompts
 
 In this lab, you will learn how to automate the processing of expense reports using AI Builder prompts and Power Automate. The lab will guide you through creating a Power Platform solution, configuring Dataverse tables, designing an AI prompt, and building a Power Automate flow to process incoming emails with expense receipts.
